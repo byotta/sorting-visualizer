@@ -1,6 +1,10 @@
 import React, { Component } from "react";
 import "./SortingVisualizer.css";
-import { getMergeSortAnimations } from "../algorithms/sortAlgorithms.js";
+import {
+   getMergeSortAnimations,
+   getBubbleSortAnimations,
+   getSelectionSortAnimations,
+} from "../algorithms/sortAlgorithms.js";
 import { Button } from "@material-ui/core";
 class SortingVisualizer extends Component {
    constructor() {
@@ -11,6 +15,69 @@ class SortingVisualizer extends Component {
          bars: [...arr],
          arraySize: 47,
       };
+   }
+   bubbleSort() {
+      let copyArr = [...this.state.bars];
+      copyArr.sort(function (a, b) {
+         return a - b;
+      });
+      const animations = getBubbleSortAnimations(this.state.bars);
+      for (let i = 0; i < animations.length; i++) {
+         const arrayBars = document.getElementsByClassName("bar");
+         const isColorChange = i % 3 !== 2;
+         if (isColorChange) {
+            const [barOneIdx, barTwoIdx] = animations[i];
+            const barOneStyle = arrayBars[barOneIdx].style;
+            const barTwoStyle = arrayBars[barTwoIdx].style;
+            const color = i % 3 === 0 ? "red" : "pink";
+            setTimeout(() => {
+               barOneStyle.backgroundColor = color;
+               barTwoStyle.backgroundColor = color;
+            }, i * 1); // 2 is the animation speed
+         } else {
+            setTimeout(() => {
+               const [
+                  barOneIdx,
+                  newHeight1,
+                  barTwoIdx,
+                  newHeight2,
+               ] = animations[i];
+               const barOneStyle = arrayBars[barOneIdx].style;
+               const barTwoStyle = arrayBars[barTwoIdx].style;
+               barOneStyle.height = `${newHeight1}px`;
+               barTwoStyle.height = `${newHeight2}px`;
+            }, i * 1);
+         }
+      }
+   }
+   selectionSort() {
+      let copyArr = [...this.state.bars];
+      copyArr.sort(function (a, b) {
+         return a - b;
+      });
+      const animations = getSelectionSortAnimations(this.state.bars);
+      let red = true;
+      for (let i = 0; i < animations.length; i++) {
+         const arrayBars = document.getElementsByClassName("bar");
+         const isColorChange = animations[i].length === 2;
+         if (isColorChange) {
+            const [barOneIdx, barTwoIdx] = animations[i];
+            const barOneStyle = arrayBars[barOneIdx].style;
+            const barTwoStyle = arrayBars[barTwoIdx].style;
+            let color = red ? "red" : "pink";
+            red = !red;
+            setTimeout(() => {
+               barOneStyle.backgroundColor = color;
+               barTwoStyle.backgroundColor = color;
+            }, i * 1); // 2 is the animation speed
+         } else {
+            setTimeout(() => {
+               const [barOneIdx, newHeight] = animations[i];
+               const barOneStyle = arrayBars[barOneIdx].style;
+               barOneStyle.height = `${newHeight}px`;
+            }, i * 1);
+         }
+      }
    }
 
    // mergeSort implementation from https://github.com/clementmihailescu/Sorting-Visualizer-Tutorial
@@ -46,14 +113,9 @@ class SortingVisualizer extends Component {
    handleSliderMovement = (e) => {
       this.setState({ arraySize: e.target.value });
       this.createNewArray();
-      console.log("arraySize", this.state.arraySize);
-      console.log("length", this.state.bars.length);
    };
    render() {
       let barClassName = "bar-text-transparent";
-      if (this.state.arraySize < 10) {
-         barClassName = "bar-text-opaque";
-      }
       const nums = this.state.bars.map((bar) => (
          <span
             className="bar"
@@ -65,8 +127,6 @@ class SortingVisualizer extends Component {
             <div className={barClassName}>{bar}</div>
          </span>
       ));
-      // font size for the style if len > x
-      // height: val * 2 in pixels
 
       return (
          <div className="sorting-visualizer">
@@ -100,13 +160,23 @@ class SortingVisualizer extends Component {
                >
                   Merge Sort
                </Button>
-               <Button size="small" variant="contained" color="primary">
-                  Quick Sort
+               <Button
+                  size="small"
+                  variant="contained"
+                  color="primary"
+                  onClick={() => this.selectionSort()}
+               >
+                  Selection Sort
                </Button>
                <Button size="small" variant="contained" color="primary">
                   Heap Sort
                </Button>
-               <Button size="small" variant="contained" color="primary">
+               <Button
+                  size="small"
+                  variant="contained"
+                  color="primary"
+                  onClick={() => this.bubbleSort()}
+               >
                   Bubble Sort
                </Button>
             </div>
@@ -116,7 +186,7 @@ class SortingVisualizer extends Component {
    getRandomArray = (arrSize) => {
       let arr = [];
       for (let i = 0; i < arrSize; i++) {
-         arr.push(Math.floor(Math.random() * 500) + 6); // random int from 5, 500 inclusive
+         arr.push(Math.floor(Math.random() * 480) + 6); // random int from 5, 480 inclusive
       }
       return arr;
    };
