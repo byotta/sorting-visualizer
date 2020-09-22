@@ -4,6 +4,7 @@ import {
    getMergeSortAnimations,
    getBubbleSortAnimations,
    getSelectionSortAnimations,
+   getHeapSortAnimations,
 } from "../algorithms/sortAlgorithms.js";
 import { Button } from "@material-ui/core";
 class SortingVisualizer extends Component {
@@ -17,10 +18,6 @@ class SortingVisualizer extends Component {
       };
    }
    bubbleSort() {
-      let copyArr = [...this.state.bars];
-      copyArr.sort(function (a, b) {
-         return a - b;
-      });
       const animations = getBubbleSortAnimations(this.state.bars);
       for (let i = 0; i < animations.length; i++) {
          const arrayBars = document.getElementsByClassName("bar");
@@ -51,10 +48,6 @@ class SortingVisualizer extends Component {
       }
    }
    selectionSort() {
-      let copyArr = [...this.state.bars];
-      copyArr.sort(function (a, b) {
-         return a - b;
-      });
       const animations = getSelectionSortAnimations(this.state.bars);
       let red = true;
       for (let i = 0; i < animations.length; i++) {
@@ -76,6 +69,36 @@ class SortingVisualizer extends Component {
                const barOneStyle = arrayBars[barOneIdx].style;
                barOneStyle.height = `${newHeight}px`;
             }, i * 1);
+         }
+      }
+   }
+   heapSort() {
+      const animations = getHeapSortAnimations(this.state.bars);
+      for (let i = 0; i < animations.length; i++) {
+         const arrayBars = document.getElementsByClassName("bar");
+         const isColorChange = i % 3 !== 2;
+         if (isColorChange) {
+            const [barOneIdx, barTwoIdx] = animations[i];
+            const barOneStyle = arrayBars[barOneIdx].style;
+            const barTwoStyle = arrayBars[barTwoIdx].style;
+            const color = i % 3 === 0 ? "red" : "pink";
+            setTimeout(() => {
+               barOneStyle.backgroundColor = color;
+               barTwoStyle.backgroundColor = color;
+            }, i * 5); // 5 is the animation speed
+         } else {
+            setTimeout(() => {
+               const [
+                  barOneIdx,
+                  newHeight1,
+                  barTwoIdx,
+                  newHeight2,
+               ] = animations[i];
+               const barOneStyle = arrayBars[barOneIdx].style;
+               const barTwoStyle = arrayBars[barTwoIdx].style;
+               barOneStyle.height = `${newHeight1}px`;
+               barTwoStyle.height = `${newHeight2}px`;
+            }, i * 5);
          }
       }
    }
@@ -168,7 +191,12 @@ class SortingVisualizer extends Component {
                >
                   Selection Sort
                </Button>
-               <Button size="small" variant="contained" color="primary">
+               <Button
+                  size="small"
+                  variant="contained"
+                  color="primary"
+                  onClick={() => this.heapSort()}
+               >
                   Heap Sort
                </Button>
                <Button
